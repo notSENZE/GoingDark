@@ -1,0 +1,16 @@
+*.user
+*.suo
+*.rsuser
+.vs/
+[Bb]in/
+[Oo]bj/
+[Ll]ogs/
+*.log
+*.zip
+
+# Kept locally for development, but not included in the public source repository.
+/.gitattributes
+/Directory.Build.props
+/GoingDark.sln
+/build-release.ps1
+/GoingDark.Verification/
