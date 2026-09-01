@@ -40,7 +40,7 @@ The plugin is installed here:
 
 `BepInEx/plugins/GoingDark/GoingDark.dll`
 
-Going Dark 0.1.8 was built and tested for SPT 4.1.3.
+Going Dark 0.1.9 was built and tested for SPT 4.1.3.
 
 ## Configuration
 

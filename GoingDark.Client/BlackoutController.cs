@@ -16,6 +16,11 @@ namespace GoingDark.Client
         private const int RendererHierarchyNodesPerFrame = 150;
         private const string CardinalEmissionMaterialName = "City_emissive_Cardinal";
         private const string TerminalEmissionMaterialName = "terminal_emissive_bsod";
+        private const string GroundZeroBillboardMaterialName = "InterchangeGlitch_1";
+        private const string GroundZeroOasisScreenMaterialName = "Sandbox_Oasis_Glitch";
+        private const string GroundZeroNeonWomenRendererName = "lab_sign_neon_women_LOD0";
+        private const string ColorPaletteEmissionMaterialName = "Color_palette_emissive";
+        private const string ColorPaletteMaterialName = "Color_palette";
 
         private static readonly int EmissionVisibilityId = Shader.PropertyToID("_EmissionVisibility");
         private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
@@ -522,7 +527,7 @@ namespace GoingDark.Client
             foreach (var material in materials)
             {
                 if (material != null
-                    && (ShouldDisableSurfaceReflection(material)
+                    && (ShouldDisableSurfaceReflection(renderer, material)
                         || material.HasProperty(EmissionVisibilityId)
                         || material.HasProperty(EmissionColorId)
                         || material.HasProperty(EmissiveColorId)
@@ -571,7 +576,7 @@ namespace GoingDark.Client
                 var hasEmissiveColor = material.HasProperty(EmissiveColorId);
                 var hasEmissionPower = material.HasProperty(EmissionPowerId);
                 var hasEmissionMap = material.HasProperty(EmissionMapId);
-                var disableSurfaceReflection = ShouldDisableSurfaceReflection(material);
+                var disableSurfaceReflection = ShouldDisableSurfaceReflection(renderer, material);
 
                 if (!hasEmissionVisibility
                     && !hasEmissionColor
@@ -658,15 +663,46 @@ namespace GoingDark.Client
             return color.r > 0.001f || color.g > 0.001f || color.b > 0.001f;
         }
 
-        private static bool ShouldDisableSurfaceReflection(Material material)
+        private static bool ShouldDisableSurfaceReflection(
+            MeshRenderer renderer,
+            Material material)
         {
-            return string.Equals(
+            if (string.Equals(
                     material.name,
                     CardinalEmissionMaterialName,
                     StringComparison.OrdinalIgnoreCase)
                 || string.Equals(
                     material.name,
                     TerminalEmissionMaterialName,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    material.name,
+                    GroundZeroBillboardMaterialName,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    material.name,
+                    GroundZeroOasisScreenMaterialName,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (renderer == null
+                || !string.Equals(
+                    renderer.name,
+                    GroundZeroNeonWomenRendererName,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return string.Equals(
+                    material.name,
+                    ColorPaletteEmissionMaterialName,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    material.name,
+                    ColorPaletteMaterialName,
                     StringComparison.OrdinalIgnoreCase);
         }
 
