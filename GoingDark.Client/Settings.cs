@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using UnityEngine;
 
 namespace GoingDark.Client
 {
@@ -10,6 +11,10 @@ namespace GoingDark.Client
         internal static ConfigEntry<bool> DisableUnmanagedSceneLights;
         internal static ConfigEntry<bool> DisableEmissiveMapMaterials;
         internal static ConfigEntry<bool> PreserveExtractionLights;
+        internal static ConfigEntry<bool> DiagnosticMode;
+        internal static ConfigEntry<KeyboardShortcut> CaptureDiagnosticTarget;
+        internal static ConfigEntry<KeyboardShortcut> LiveTestDiagnosticTarget;
+        internal static ConfigEntry<KeyboardShortcut> SurfaceTestDiagnosticTarget;
 
         internal static void Bind(ConfigFile config)
         {
@@ -48,6 +53,30 @@ namespace GoingDark.Client
                 "Preserve Extraction Lights",
                 true,
                 "Keep lights that are attached to extraction points or clearly named extraction signals.");
+
+            DiagnosticMode = config.Bind(
+                "4. Diagnostics",
+                "Diagnostic Mode",
+                false,
+                "Enable targeted renderer capture and temporary live tests during a raid.");
+
+            CaptureDiagnosticTarget = config.Bind(
+                "4. Diagnostics",
+                "Capture Target",
+                new KeyboardShortcut(KeyCode.F7),
+                "Capture and briefly blink the map renderer under the crosshair, then add it to the current raid report.");
+
+            LiveTestDiagnosticTarget = config.Bind(
+                "4. Diagnostics",
+                "Live Test Target",
+                new KeyboardShortcut(KeyCode.F8),
+                "Turn off emission-like properties on the selected renderer. Press again to blink it briefly.");
+
+            SurfaceTestDiagnosticTarget = config.Bind(
+                "4. Diagnostics",
+                "Surface Test Target",
+                new KeyboardShortcut(KeyCode.F9),
+                "Cycle reversible tests for base color, reflections and the main texture on the selected renderer.");
         }
     }
 }

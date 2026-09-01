@@ -78,7 +78,17 @@ namespace GoingDark.Client
                     || name.IndexOf("candle", StringComparison.OrdinalIgnoreCase) >= 0
                     || name.IndexOf("fireplace", StringComparison.OrdinalIgnoreCase) >= 0
                     || name.IndexOf("flame", StringComparison.OrdinalIgnoreCase) >= 0
-                    || name.IndexOf("gaslamp", StringComparison.OrdinalIgnoreCase) >= 0)
+                    || name.IndexOf("gaslamp", StringComparison.OrdinalIgnoreCase) >= 0
+                    || name.IndexOf("chemlight", StringComparison.OrdinalIgnoreCase) >= 0
+                    || name.IndexOf("chem_light", StringComparison.OrdinalIgnoreCase) >= 0
+                    || name.IndexOf("chem light", StringComparison.OrdinalIgnoreCase) >= 0
+                    || name.IndexOf("glowstick", StringComparison.OrdinalIgnoreCase) >= 0
+                    || name.IndexOf("glow_stick", StringComparison.OrdinalIgnoreCase) >= 0
+                    || name.IndexOf("glow stick", StringComparison.OrdinalIgnoreCase) >= 0
+                    || name.IndexOf("lightstick", StringComparison.OrdinalIgnoreCase) >= 0
+                    || name.IndexOf("light_stick", StringComparison.OrdinalIgnoreCase) >= 0
+                    || name.IndexOf("light stick", StringComparison.OrdinalIgnoreCase) >= 0
+                    || name.IndexOf("cyalume", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     return true;
                 }
