@@ -3,9 +3,22 @@ using UnityEngine;
 
 namespace GoingDark.Client
 {
+    internal enum BlackoutMode
+    {
+        Permanent,
+        RaidStartEvent,
+        MidRaidEvent
+    }
+
     internal static class Settings
     {
         internal static ConfigEntry<bool> Enabled;
+        internal static ConfigEntry<BlackoutMode> Mode;
+        internal static ConfigEntry<int> EventChance;
+        internal static ConfigEntry<float> EarliestEventMinute;
+        internal static ConfigEntry<float> LatestEventMinute;
+        internal static ConfigEntry<bool> PlayEventSound;
+        internal static ConfigEntry<float> EventSoundVolume;
         internal static ConfigEntry<bool> StreetsEnabled;
         internal static ConfigEntry<bool> GroundZeroEnabled;
         internal static ConfigEntry<bool> DisableUnmanagedSceneLights;
@@ -22,7 +35,51 @@ namespace GoingDark.Client
                 "1. General",
                 "Enabled",
                 true,
-                "Apply a permanent infrastructure blackout in supported raids.");
+                "Enable Going Dark in supported raids.");
+
+            Mode = config.Bind(
+                "2. Events",
+                "Blackout Mode",
+                BlackoutMode.Permanent,
+                "Permanent starts every supported raid dark. RaidStartEvent rolls at raid start. MidRaidEvent rolls for a delayed blackout.");
+
+            EventChance = config.Bind(
+                "2. Events",
+                "Event Chance Percent",
+                25,
+                new ConfigDescription(
+                    "Chance for a blackout in either event mode. Permanent mode ignores this setting.",
+                    new AcceptableValueRange<int>(0, 100)));
+
+            EarliestEventMinute = config.Bind(
+                "2. Events",
+                "Earliest Mid-Raid Minute",
+                5f,
+                new ConfigDescription(
+                    "Earliest raid minute at which a MidRaidEvent can trigger.",
+                    new AcceptableValueRange<float>(0f, 60f)));
+
+            LatestEventMinute = config.Bind(
+                "2. Events",
+                "Latest Mid-Raid Minute",
+                15f,
+                new ConfigDescription(
+                    "Latest raid minute at which a MidRaidEvent can trigger.",
+                    new AcceptableValueRange<float>(0f, 60f)));
+
+            PlayEventSound = config.Bind(
+                "2. Events",
+                "Play Mid-Raid Sound",
+                true,
+                "Play blackout.wav when a MidRaidEvent triggers. The blackout still works when the file is missing.");
+
+            EventSoundVolume = config.Bind(
+                "2. Events",
+                "Mid-Raid Sound Volume",
+                1f,
+                new ConfigDescription(
+                    "Volume of blackout.wav.",
+                    new AcceptableValueRange<float>(0f, 1f)));
 
             StreetsEnabled = config.Bind(
                 "2. Maps",
