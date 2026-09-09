@@ -24,6 +24,9 @@ namespace GoingDark.Client
         private const string GroundZeroNeonWomenRendererName = "lab_sign_neon_women_LOD0";
         private const string ColorPaletteEmissionMaterialName = "Color_palette_emissive";
         private const string ColorPaletteMaterialName = "Color_palette";
+        private const string InterchangePowerSwitchId = "Shopping_Mall_DesignStuff_00055";
+        private const string InterchangeAlarmSwitchId = "Shopping_Mall_DesignStuff_00056";
+        private const string InterchangeSaferoomSwitchId = "Shopping_Mall_DesignStuff_00062";
 
         private static readonly int EmissionVisibilityId = Shader.PropertyToID("_EmissionVisibility");
         private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
@@ -86,6 +89,12 @@ namespace GoingDark.Client
         private float _midRaidTriggerSeconds;
         private float _raidReadyRealtime;
         private BlackoutMode _raidMode;
+        private Switch _interchangePowerSwitch;
+        private Switch _interchangeAlarmSwitch;
+        private Switch _interchangeSaferoomSwitch;
+        private bool _interchangePowerShutdownPending;
+        private bool _interchangePowerCloseLogged;
+        private bool _interchangePowerLampsDisabled;
 
         internal BlackoutController(ManualLogSource log, Action playEventSound)
         {
@@ -147,6 +156,7 @@ namespace GoingDark.Client
             }
 
             ProcessBatchedLightBlackout();
+            ProcessInterchangePowerShutdown();
             ProcessActiveRendererDiscoveryBatch();
             ProcessRendererDiscoveryBatch(RendererHierarchyNodesPerFrame);
             ProcessEmissionBatch();
@@ -156,6 +166,14 @@ namespace GoingDark.Client
         internal bool ShouldBlock(Component component)
         {
             return _blackoutActive && !MapLightFilter.ShouldPreserve(component);
+        }
+
+        internal bool ShouldBlockPowerSwitch(Switch powerSwitch)
+        {
+            return _blackoutActive
+                && _raidMode == BlackoutMode.MidRaidEvent
+                && string.Equals(_locationId, "Interchange", StringComparison.OrdinalIgnoreCase)
+                && IsInterchangePowerSwitch(powerSwitch);
         }
 
         internal void SceneLoaded(Scene scene)
@@ -224,6 +242,12 @@ namespace GoingDark.Client
             _midRaidTriggerSeconds = 0f;
             _raidReadyRealtime = 0f;
             _raidMode = BlackoutMode.Permanent;
+            _interchangePowerSwitch = null;
+            _interchangeAlarmSwitch = null;
+            _interchangeSaferoomSwitch = null;
+            _interchangePowerShutdownPending = false;
+            _interchangePowerCloseLogged = false;
+            _interchangePowerLampsDisabled = false;
             _knownLampControllers.Clear();
             _knownLampGroups.Clear();
             _knownSceneLights.Clear();
@@ -351,6 +375,14 @@ namespace GoingDark.Client
             if (_raidMode == BlackoutMode.MidRaidEvent)
             {
                 _log.LogInfo($"Mid-raid blackout event triggered on {_locationId}.");
+
+                if (string.Equals(
+                    _locationId,
+                    "Interchange",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    _interchangePowerShutdownPending = true;
+                }
             }
             else if (_raidMode == BlackoutMode.RaidStartEvent)
             {
@@ -368,6 +400,102 @@ namespace GoingDark.Client
             }
         }
 
+        private void ProcessInterchangePowerShutdown()
+        {
+            if (!_interchangePowerShutdownPending)
+            {
+                return;
+            }
+
+            if (_interchangePowerSwitch == null
+                || _interchangeAlarmSwitch == null
+                || _interchangeSaferoomSwitch == null)
+            {
+                var switches = UnityEngine.Object.FindObjectsOfType<Switch>();
+                foreach (var powerSwitch in switches)
+                {
+                    if (IsInterchangePowerSwitch(powerSwitch))
+                    {
+                        _interchangePowerSwitch = powerSwitch;
+                    }
+                    else if (HasSwitchId(powerSwitch, InterchangeAlarmSwitchId))
+                    {
+                        _interchangeAlarmSwitch = powerSwitch;
+                    }
+                    else if (HasSwitchId(powerSwitch, InterchangeSaferoomSwitchId))
+                    {
+                        _interchangeSaferoomSwitch = powerSwitch;
+                    }
+                }
+
+                if (_interchangePowerSwitch == null
+                    || _interchangeAlarmSwitch == null
+                    || _interchangeSaferoomSwitch == null)
+                {
+                    _interchangePowerShutdownPending = false;
+                    _log.LogWarning(
+                        "Could not shut down the complete Interchange grid because one or more "
+                        + "power switches were not found.");
+                    return;
+                }
+            }
+
+            if (!_interchangePowerLampsDisabled)
+            {
+                _interchangePowerSwitch.SetLampsState(Turnable.EState.Off);
+                _interchangePowerLampsDisabled = true;
+            }
+
+            var powerSwitchShut = EnsureSwitchIsShut(_interchangePowerSwitch);
+            var alarmSwitchShut = EnsureSwitchIsShut(_interchangeAlarmSwitch);
+            var saferoomSwitchShut = EnsureSwitchIsShut(_interchangeSaferoomSwitch);
+            if (!_interchangePowerCloseLogged)
+            {
+                _interchangePowerCloseLogged = true;
+                _log.LogInfo(
+                    "Interchange power, alarm and saferoom switches received the grid "
+                    + "shutdown command.");
+            }
+
+            if (!powerSwitchShut || !alarmSwitchShut || !saferoomSwitchShut)
+            {
+                return;
+            }
+
+            _interchangePowerSwitch.NoInteractionsAllowed = true;
+            _interchangePowerSwitch.Operatable = false;
+            _interchangePowerShutdownPending = false;
+            _log.LogInfo(
+                "Interchange power, alarm and saferoom switches are shut down; the main "
+                + "switch is locked for the rest of the raid.");
+        }
+
+        private static bool EnsureSwitchIsShut(Switch powerSwitch)
+        {
+            if (powerSwitch.DoorState == EDoorState.Shut)
+            {
+                return true;
+            }
+
+            if (powerSwitch.DoorState != EDoorState.Interacting)
+            {
+                powerSwitch.Close();
+            }
+
+            return false;
+        }
+
+        private static bool IsInterchangePowerSwitch(Switch powerSwitch)
+        {
+            return HasSwitchId(powerSwitch, InterchangePowerSwitchId);
+        }
+
+        private static bool HasSwitchId(Switch powerSwitch, string switchId)
+        {
+            return powerSwitch != null
+                && string.Equals(powerSwitch.Id, switchId, StringComparison.OrdinalIgnoreCase);
+        }
+
         private void DisableBlackout()
         {
             if (!_blackoutActive)
@@ -379,6 +507,7 @@ namespace GoingDark.Client
             _activeRendererDiscovery = null;
             _emissionRenderers = null;
             _rendererDiscoveryNodes = null;
+            _interchangePowerShutdownPending = false;
             if (_blackoutApplied)
             {
                 _log.LogInfo("Blackout disabled. Previously changed scene lights reset when the raid ends.");
@@ -1347,6 +1476,11 @@ namespace GoingDark.Client
                 || string.Equals(locationId, "Sandbox_high", StringComparison.OrdinalIgnoreCase))
             {
                 return Settings.GroundZeroEnabled.Value;
+            }
+
+            if (string.Equals(locationId, "Interchange", StringComparison.OrdinalIgnoreCase))
+            {
+                return Settings.InterchangeEnabled.Value;
             }
 
             return false;

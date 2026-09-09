@@ -26,4 +26,16 @@ namespace GoingDark.Client
             }
         }
     }
+
+    [HarmonyPatch(
+        typeof(Switch),
+        nameof(Switch.Interact),
+        new[] { typeof(InteractionResult) })]
+    internal static class InterchangePowerSwitchInteractPatch
+    {
+        private static bool Prefix(Switch __instance)
+        {
+            return BlackoutController.Instance?.ShouldBlockPowerSwitch(__instance) != true;
+        }
+    }
 }

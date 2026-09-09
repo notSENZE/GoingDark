@@ -21,6 +21,7 @@ namespace GoingDark.Client
         internal static ConfigEntry<float> EventSoundVolume;
         internal static ConfigEntry<bool> StreetsEnabled;
         internal static ConfigEntry<bool> GroundZeroEnabled;
+        internal static ConfigEntry<bool> InterchangeEnabled;
         internal static ConfigEntry<bool> DisableUnmanagedSceneLights;
         internal static ConfigEntry<bool> DisableEmissiveMapMaterials;
         internal static ConfigEntry<bool> PreserveExtractionLights;
@@ -92,6 +93,12 @@ namespace GoingDark.Client
                 "Ground Zero",
                 true,
                 "Apply the blackout on both Ground Zero level variants.");
+
+            InterchangeEnabled = config.Bind(
+                "2. Maps",
+                "Interchange",
+                true,
+                "Apply the blackout on Interchange.");
 
             DisableUnmanagedSceneLights = config.Bind(
                 "3. Blackout",
