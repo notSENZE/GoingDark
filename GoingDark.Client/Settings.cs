@@ -22,6 +22,11 @@ namespace GoingDark.Client
         internal static ConfigEntry<bool> StreetsEnabled;
         internal static ConfigEntry<bool> GroundZeroEnabled;
         internal static ConfigEntry<bool> InterchangeEnabled;
+        internal static ConfigEntry<bool> ReserveEnabled;
+        internal static ConfigEntry<bool> BotReactionsEnabled;
+        internal static ConfigEntry<bool> BotEquipmentResponseEnabled;
+        internal static ConfigEntry<int> UnaidedBotVisionPercent;
+        internal static ConfigEntry<int> UnaidedBotRecognitionPercent;
         internal static ConfigEntry<bool> DisableUnmanagedSceneLights;
         internal static ConfigEntry<bool> DisableEmissiveMapMaterials;
         internal static ConfigEntry<bool> PreserveExtractionLights;
@@ -99,6 +104,40 @@ namespace GoingDark.Client
                 "Interchange",
                 true,
                 "Apply the blackout on Interchange.");
+
+            ReserveEnabled = config.Bind(
+                "2. Maps",
+                "Reserve",
+                true,
+                "Apply the blackout on Reserve without disabling extraction mechanics.");
+
+            BotReactionsEnabled = config.Bind(
+                "3. Bot Reactions",
+                "Bots React to Blackout",
+                true,
+                "Reduce unaided bot vision and recognition in dark areas while a blackout is active.");
+
+            BotEquipmentResponseEnabled = config.Bind(
+                "3. Bot Reactions",
+                "Bots Use Night Vision and Lights",
+                true,
+                "Let bots use equipped night vision or weapon lights when the blackout leaves them in darkness.");
+
+            UnaidedBotVisionPercent = config.Bind(
+                "3. Bot Reactions",
+                "Unaided Vision Distance Percent",
+                55,
+                new ConfigDescription(
+                    "Maximum bot vision distance without active night vision during a blackout.",
+                    new AcceptableValueRange<int>(10, 100)));
+
+            UnaidedBotRecognitionPercent = config.Bind(
+                "3. Bot Reactions",
+                "Unaided Recognition Speed Percent",
+                55,
+                new ConfigDescription(
+                    "Bot recognition speed without active night vision during a blackout.",
+                    new AcceptableValueRange<int>(10, 100)));
 
             DisableUnmanagedSceneLights = config.Bind(
                 "3. Blackout",

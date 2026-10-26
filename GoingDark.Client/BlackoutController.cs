@@ -104,6 +104,8 @@ namespace GoingDark.Client
 
         internal static BlackoutController Instance { get; set; }
 
+        internal bool IsBlackoutActive => _blackoutActive;
+
         internal void Tick()
         {
             if (!Singleton<GameWorld>.Instantiated)
@@ -1481,6 +1483,11 @@ namespace GoingDark.Client
             if (string.Equals(locationId, "Interchange", StringComparison.OrdinalIgnoreCase))
             {
                 return Settings.InterchangeEnabled.Value;
+            }
+
+            if (string.Equals(locationId, "RezervBase", StringComparison.OrdinalIgnoreCase))
+            {
+                return Settings.ReserveEnabled.Value;
             }
 
             return false;

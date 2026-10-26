@@ -1,0 +1,4 @@
+{
+  // Check GitHub once when the SPT server starts. No files are downloaded.
+  "checkForUpdates": true
+}

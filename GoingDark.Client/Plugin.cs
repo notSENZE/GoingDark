@@ -16,11 +16,12 @@ namespace GoingDark.Client
     {
         public const string PluginGuid = "com.senze.goingdark";
         public const string PluginName = "Going Dark";
-        public const string PluginVersion = "0.3.0";
+        public const string PluginVersion = "0.4.0";
 
         internal static ManualLogSource Log { get; private set; }
 
         private BlackoutController _blackoutController;
+        private BotBlackoutController _botBlackoutController;
         private DiagnosticController _diagnosticController;
         private AudioClip _blackoutSound;
         private AudioSource _blackoutAudioSource;
@@ -39,6 +40,7 @@ namespace GoingDark.Client
 
             _blackoutController = new BlackoutController(Logger, PlayBlackoutSound);
             BlackoutController.Instance = _blackoutController;
+            _botBlackoutController = new BotBlackoutController(Logger);
             _diagnosticController = new DiagnosticController(Logger);
 
             _harmony = new Harmony(PluginGuid);
@@ -51,6 +53,7 @@ namespace GoingDark.Client
         private void Update()
         {
             _blackoutController.Tick();
+            _botBlackoutController.Tick();
             _diagnosticController.Tick();
         }
 
@@ -63,6 +66,7 @@ namespace GoingDark.Client
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
             _blackoutController.Reset();
+            _botBlackoutController.Reset();
             _diagnosticController.Reset();
             ReleaseBlackoutSound();
             if (_blackoutAudioSource != null)
