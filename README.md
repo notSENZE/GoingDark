@@ -11,7 +11,7 @@ This makes NVGs and tactical lights even more useful.
 
 **SPT version:** `~4.1.6`  
 **Dependencies:** None  
-**FIKA compatibility:** Unknown  
+**FIKA compatibility:** Read `COMPATIBILITY AND LIMITATIONS` below  
 **Recommended mod:** [Bodycam](https://github.com/notSENZE/Bodycam)  
 **Known incompatibilities:** None that I know of
 
@@ -32,8 +32,12 @@ Only **MidRaidEvent** disables Interchange's power station and related objective
 **Permanent** and **RaidStartEvent** keep that gameplay available while holding supported lighting dark.
 
 ## CUSTOM EVENT SOUND 
+By default, **Going Dark** uses Tarkov’s Hideout Generator sound. In the `F12` menu, you can choose to play the included sound file.
+Alternatively, you can use your own file.
+
 `blackout.wav` plays only when a **MidRaidEvent** shuts down the grid. You can replace it with another WAV file:
 
+If you’re using your own sound file, please bear the following in mind: 
 1. Rename your file to `blackout.wav`.
 2. Replace the existing file beside `GoingDark.dll`.
 3. Restart the game before testing it.
