@@ -1,21 +1,19 @@
-# IMPORTANT NOTE
+# ⚠️ IMPORTANT NOTE ⚠️
 My mods will no longer be available on The Forge.
-According to their rules, you won’t receive support if you’ve installed mods that weren’t published there. You’ll be advised to uninstall these (my) mods or be denied support altogether.
-If you have any issues with my mods, please contact me directly on Discord.
-
-**Discord Name:** *@obviously.senze*  
-**My Discord server:** https://discord.gg/PD5TPQFKpa
+Under The Forge's rules, mods that aren't released there aren't supported.
+This means that if you run into an issue that might be related to one of my mods, you may be denied support or advised to remove the mod.
+If you experience any issues with my mods, please join my [Discord](https://discord.gg/PD5TPQFKpa) for support.
 
 
 # ABOUT GOING DARK
-“Going Dark” causes nearly all the lights on `Streets of Tarkov`, `Interchange`, `Ground Zero`, and `Reserve` to go out. 
-NVG and tactical lights are finally actually useful.
+**Going Dark** causes power outages on `Streets of Tarkov`, `Reserve`, `Ground Zero`, `Interchange` and `Factory`.  
+This makes NVGs and tactical lights even more useful.
 
-**SPT version:** ~4.1.6  
-**Dependencies:** none  
-**FIKA compatible:** unknown  
-**Recommendations:**  
-**Incompatibilities:** None that I know of
+**SPT version:** `~4.1.6`  
+**Dependencies:** None  
+**FIKA compatibility:** Unknown  
+**Recommended mod:** [Bodycam](https://github.com/notSENZE/Bodycam)  
+**Known incompatibilities:** None that I know of
 
 
 # DETAILS
@@ -54,5 +52,11 @@ A missing or unreadable sound does not prevent the blackout. Make sure you have 
 
 
 # BUG REPORTS
-It's very important to me that you document bugs visually and send me video or image footage.
-Please use https://discord.com/channels/1551226098354753576/1552432219102904441 for this.
+If you encounter a bug or experience any issues with my mods, please include the following information in your report:
+
+- **Description:** What happened, and what were you doing when the issue occurred?
+- **BepInEx logs**
+- **Server logs**
+- **Screenshots or video recordings**, if available
+
+Please submit your bug reports in the dedicated channel [on my Discord server](https://discord.com/channels/1551226098354753576/1552432219102904441).
