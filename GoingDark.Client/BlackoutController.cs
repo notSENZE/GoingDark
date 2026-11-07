@@ -83,6 +83,7 @@ namespace GoingDark.Client
         private bool _lightPreparationStarted;
         private bool _lightPreparationComplete;
         private bool _batchedLightBlackoutActive;
+        private bool _useBatchedBlackout;
         private int _lightPreparationStage;
         private int _lightBlackoutFrames;
         private double _lightBlackoutWorkMilliseconds;
@@ -131,7 +132,13 @@ namespace GoingDark.Client
             ProcessLightPreparationStep();
 
             var blackoutAllowed = Settings.Enabled.Value && IsEnabledMap(_locationId);
-            if (!blackoutAllowed || !_raidBlackoutSelected || !_blackoutReady)
+            var activationTimeAllowed = _blackoutActive
+                || !Settings.NightBlackoutsOnly.Value
+                || IsNight(world.GameDateTime);
+            if (!blackoutAllowed
+                || !_raidBlackoutSelected
+                || !_blackoutReady
+                || !activationTimeAllowed)
             {
                 DisableBlackout();
                 return;
@@ -139,12 +146,17 @@ namespace GoingDark.Client
 
             if (!_blackoutActive)
             {
+                if (_useBatchedBlackout && _raidMode == BlackoutMode.Permanent)
+                {
+                    _playSoundOnActivation = true;
+                }
+
                 ActivateBlackout();
             }
 
             if (_sweepRequired)
             {
-                if (_raidMode == BlackoutMode.MidRaidEvent)
+                if (_useBatchedBlackout)
                 {
                     BeginBatchedBlackout();
                 }
@@ -208,11 +220,10 @@ namespace GoingDark.Client
                 }
             }
 
-            if (_raidMode == BlackoutMode.MidRaidEvent
+            if (_useBatchedBlackout
                 && _raidBlackoutSelected
                 && Settings.Enabled.Value
-                && IsEnabledMap(_locationId)
-                && (!_blackoutReady || _blackoutActive))
+                && IsEnabledMap(_locationId))
             {
                 RequestLightPreparation();
                 if (_blackoutActive)
@@ -238,6 +249,7 @@ namespace GoingDark.Client
             _lightPreparationStarted = false;
             _lightPreparationComplete = false;
             _batchedLightBlackoutActive = false;
+            _useBatchedBlackout = false;
             _lightPreparationStage = 0;
             _lightBlackoutFrames = 0;
             _lightBlackoutWorkMilliseconds = 0d;
@@ -284,8 +296,17 @@ namespace GoingDark.Client
             PlanRaidBlackout(world);
 
             if (_raidBlackoutSelected
-                && _midRaidEvent
-                && !_blackoutReady
+                && !CanActivateBlackout(world))
+            {
+                _useBatchedBlackout = true;
+                var currentTime = world.GameDateTime?.Calculate();
+                _log.LogInfo(
+                    $"Blackout on {_locationId} is waiting for night: "
+                    + $"current={currentTime:HH:mm}, active window=20:00-06:00.");
+            }
+
+            if (_raidBlackoutSelected
+                && _useBatchedBlackout
                 && Settings.Enabled.Value)
             {
                 RequestLightPreparation();
@@ -304,6 +325,17 @@ namespace GoingDark.Client
             }
 
             _raidMode = Settings.Mode.Value;
+            if (_raidMode == BlackoutMode.RaidStartEvent
+                && Settings.NightBlackoutsOnly.Value
+                && !IsNight(world.GameDateTime))
+            {
+                var currentTime = world.GameDateTime?.Calculate();
+                _log.LogInfo(
+                    $"Raid-start blackout unavailable on {_locationId}: "
+                    + $"raid began at {currentTime:HH:mm}.");
+                return;
+            }
+
             if (_raidMode == BlackoutMode.Permanent)
             {
                 _raidBlackoutSelected = true;
@@ -333,6 +365,7 @@ namespace GoingDark.Client
             }
 
             _midRaidEvent = true;
+            _useBatchedBlackout = true;
             var earliestMinute = Math.Min(
                 Settings.EarliestEventMinute.Value,
                 Settings.LatestEventMinute.Value);
@@ -530,6 +563,22 @@ namespace GoingDark.Client
             return Math.Max(0f, Time.realtimeSinceStartup - _raidReadyRealtime);
         }
 
+        private static bool CanActivateBlackout(GameWorld world)
+        {
+            return !Settings.NightBlackoutsOnly.Value || IsNight(world.GameDateTime);
+        }
+
+        private static bool IsNight(GameDateTime gameDateTime)
+        {
+            if (gameDateTime == null)
+            {
+                return false;
+            }
+
+            var hour = gameDateTime.Calculate().Hour;
+            return hour >= 20 || hour < 6;
+        }
+
         private static int CreateRaidSeed(GameWorld world)
         {
             unchecked
@@ -721,7 +770,7 @@ namespace GoingDark.Client
             BeginEmissionSweep();
 
             _log.LogInfo(
-                $"Batched mid-raid light blackout started on {_locationId}.");
+                $"Batched light blackout started on {_locationId}.");
         }
 
         private void ProcessBatchedLightBlackout()
@@ -1488,6 +1537,21 @@ namespace GoingDark.Client
             if (string.Equals(locationId, "RezervBase", StringComparison.OrdinalIgnoreCase))
             {
                 return Settings.ReserveEnabled.Value;
+            }
+
+            if (string.Equals(locationId, "factory4_night", StringComparison.OrdinalIgnoreCase))
+            {
+                return Settings.FactoryEnabled.Value;
+            }
+
+            if (string.Equals(locationId, "bigmap", StringComparison.OrdinalIgnoreCase))
+            {
+                return Settings.CustomsEnabled.Value;
+            }
+
+            if (string.Equals(locationId, "Lighthouse", StringComparison.OrdinalIgnoreCase))
+            {
+                return Settings.LighthouseEnabled.Value;
             }
 
             return false;

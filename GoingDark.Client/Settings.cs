@@ -1,5 +1,4 @@
 using BepInEx.Configuration;
-using UnityEngine;
 
 namespace GoingDark.Client
 {
@@ -10,19 +9,30 @@ namespace GoingDark.Client
         MidRaidEvent
     }
 
+    internal enum BlackoutSoundMode
+    {
+        HideoutGenerator,
+        CustomFile
+    }
+
     internal static class Settings
     {
         internal static ConfigEntry<bool> Enabled;
+        internal static ConfigEntry<bool> NightBlackoutsOnly;
         internal static ConfigEntry<BlackoutMode> Mode;
         internal static ConfigEntry<int> EventChance;
         internal static ConfigEntry<float> EarliestEventMinute;
         internal static ConfigEntry<float> LatestEventMinute;
         internal static ConfigEntry<bool> PlayEventSound;
+        internal static ConfigEntry<BlackoutSoundMode> EventSound;
         internal static ConfigEntry<float> EventSoundVolume;
         internal static ConfigEntry<bool> StreetsEnabled;
         internal static ConfigEntry<bool> GroundZeroEnabled;
         internal static ConfigEntry<bool> InterchangeEnabled;
         internal static ConfigEntry<bool> ReserveEnabled;
+        internal static ConfigEntry<bool> FactoryEnabled;
+        internal static ConfigEntry<bool> CustomsEnabled;
+        internal static ConfigEntry<bool> LighthouseEnabled;
         internal static ConfigEntry<bool> BotReactionsEnabled;
         internal static ConfigEntry<bool> BotEquipmentResponseEnabled;
         internal static ConfigEntry<int> UnaidedBotVisionPercent;
@@ -30,10 +40,6 @@ namespace GoingDark.Client
         internal static ConfigEntry<bool> DisableUnmanagedSceneLights;
         internal static ConfigEntry<bool> DisableEmissiveMapMaterials;
         internal static ConfigEntry<bool> PreserveExtractionLights;
-        internal static ConfigEntry<bool> DiagnosticMode;
-        internal static ConfigEntry<KeyboardShortcut> CaptureDiagnosticTarget;
-        internal static ConfigEntry<KeyboardShortcut> LiveTestDiagnosticTarget;
-        internal static ConfigEntry<KeyboardShortcut> SurfaceTestDiagnosticTarget;
 
         internal static void Bind(ConfigFile config)
         {
@@ -43,16 +49,22 @@ namespace GoingDark.Client
                 true,
                 "Enable Going Dark in supported raids.");
 
+            NightBlackoutsOnly = config.Bind(
+                "1. General",
+                "Night Blackouts Only",
+                true,
+                "Only activate new blackouts between 20:00 and 06:00. Active blackouts last until the raid ends.");
+
             Mode = config.Bind(
                 "2. Events",
                 "Blackout Mode",
-                BlackoutMode.Permanent,
+                BlackoutMode.MidRaidEvent,
                 "Permanent starts every supported raid dark. RaidStartEvent rolls at raid start. MidRaidEvent rolls for a delayed blackout.");
 
             EventChance = config.Bind(
                 "2. Events",
                 "Event Chance Percent",
-                25,
+                30,
                 new ConfigDescription(
                     "Chance for a blackout in either event mode. Permanent mode ignores this setting.",
                     new AcceptableValueRange<int>(0, 100)));
@@ -77,14 +89,20 @@ namespace GoingDark.Client
                 "2. Events",
                 "Play Mid-Raid Sound",
                 true,
-                "Play blackout.wav when a MidRaidEvent triggers. The blackout still works when the file is missing.");
+                "Play a sound when a blackout starts during the raid.");
+
+            EventSound = config.Bind(
+                "2. Events",
+                "Blackout Sound",
+                BlackoutSoundMode.HideoutGenerator,
+                "HideoutGenerator uses Tarkov's generator shutdown sound. CustomFile uses blackout.wav from the client mod folder.");
 
             EventSoundVolume = config.Bind(
                 "2. Events",
                 "Mid-Raid Sound Volume",
-                1f,
+                0.05f,
                 new ConfigDescription(
-                    "Volume of blackout.wav.",
+                    "Volume of the blackout sound.",
                     new AcceptableValueRange<float>(0f, 1f)));
 
             StreetsEnabled = config.Bind(
@@ -110,6 +128,24 @@ namespace GoingDark.Client
                 "Reserve",
                 true,
                 "Apply the blackout on Reserve without disabling extraction mechanics.");
+
+            FactoryEnabled = config.Bind(
+                "2. Maps",
+                "Factory",
+                true,
+                "Apply the blackout on the night version of Factory.");
+
+            CustomsEnabled = config.Bind(
+                "2. Maps",
+                "Customs",
+                true,
+                "Apply the blackout on Customs.");
+
+            LighthouseEnabled = config.Bind(
+                "2. Maps",
+                "Lighthouse",
+                true,
+                "Apply the blackout on Lighthouse.");
 
             BotReactionsEnabled = config.Bind(
                 "3. Bot Reactions",
@@ -156,30 +192,6 @@ namespace GoingDark.Client
                 "Preserve Extraction Lights",
                 true,
                 "Keep lights that are attached to extraction points or clearly named extraction signals.");
-
-            DiagnosticMode = config.Bind(
-                "4. Diagnostics",
-                "Diagnostic Mode",
-                false,
-                "Enable targeted renderer capture and temporary live tests during a raid.");
-
-            CaptureDiagnosticTarget = config.Bind(
-                "4. Diagnostics",
-                "Capture Target",
-                new KeyboardShortcut(KeyCode.F7),
-                "Capture and briefly blink the map renderer under the crosshair, then add it to the current raid report.");
-
-            LiveTestDiagnosticTarget = config.Bind(
-                "4. Diagnostics",
-                "Live Test Target",
-                new KeyboardShortcut(KeyCode.F8),
-                "Turn off emission-like properties on the selected renderer. Press again to blink it briefly.");
-
-            SurfaceTestDiagnosticTarget = config.Bind(
-                "4. Diagnostics",
-                "Surface Test Target",
-                new KeyboardShortcut(KeyCode.F9),
-                "Cycle reversible tests for base color, reflections and the main texture on the selected renderer.");
         }
     }
 }

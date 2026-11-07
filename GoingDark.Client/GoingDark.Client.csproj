@@ -7,9 +7,9 @@
     <Company>Senze</Company>
     <Product>Going Dark</Product>
     <Description>Configurable infrastructure blackouts for selected SPT maps.</Description>
-    <Version>0.4.0</Version>
-    <AssemblyVersion>0.4.0.0</AssemblyVersion>
-    <FileVersion>0.4.0.0</FileVersion>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
     <LangVersion>11.0</LangVersion>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
@@ -34,8 +34,8 @@
       <HintPath>$(SptPath)\EscapeFromTarkov_Data\Managed\Comfort.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(SptPath)\EscapeFromTarkov_Data\Managed\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Sirenix.Serialization">
+      <HintPath>$(SptPath)\EscapeFromTarkov_Data\Managed\Sirenix.Serialization.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
@@ -48,18 +48,6 @@
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(SptPath)\EscapeFromTarkov_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>$(SptPath)\EscapeFromTarkov_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>$(SptPath)\EscapeFromTarkov_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>$(SptPath)\EscapeFromTarkov_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule">
