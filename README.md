@@ -6,7 +6,7 @@ If you experience any issues with my mods, please join my [Discord](https://disc
 
 
 # ABOUT GOING DARK
-**Going Dark** causes power outages on `Streets of Tarkov`, `Reserve`, `Ground Zero`, `Interchange` and `Factory`.  
+**Going Dark** causes power outages on `Streets of Tarkov`, `Reserve`, `Ground Zero`, `Interchange`, `Factory (night)`, `Customs` and `Lighthouse`  
 This makes NVGs and tactical lights even more useful.
 
 **SPT version:** `~4.1.6`  
@@ -22,14 +22,16 @@ Press `F12`, open **Going Dark** and select a **Blackout Mode**.
 - **Permanent** applies the blackout in every supported raid. Event chance, trigger minutes and event sound are ignored.
 - **RaidStartEvent** rolls the configured chance once at raid start. A successful roll starts the map dark; a failed roll leaves normal lighting active for the whole raid. Trigger minutes and sound are ignored.
 - **MidRaidEvent** rolls the same chance, then selects a shutdown time between the earliest and latest configured raid minute. A successful event plays the optional sound and shuts down the prepared grid over a few frames. On Interchange, it also trips and locks the power station. A failed roll leaves the map unchanged.
+- **Night Blackouts Only** ensures that blackouts can begin only between 20:00 and 06:00. If a raid reaches 20:00 while you are still in it, a waiting Permanent or Mid-Raid blackout may activate, depending on your selected mode and event chance. Raid Start Events occur only when the raid begins at night. Once activated, the blackout lasts until the raid ends.
 
 The minute settings use elapsed raid time, not the map's displayed time of day. Reversed earliest and latest values are handled automatically. Event decisions are fixed when the raid begins, so changing event settings during a raid affects the next raid.
 
 Defaults are `Permanent`, a `25%` event chance and a mid-raid window from minute `5` to `15`.
 
-Only **MidRaidEvent** disables Interchange's power station and related objectives. **Permanent** and **RaidStartEvent** keep that gameplay available while holding supported lighting dark.
+Only **MidRaidEvent** disables Interchange's power station and related objectives.  
+**Permanent** and **RaidStartEvent** keep that gameplay available while holding supported lighting dark.
 
-## Custom Event Sound 
+## CUSTOM EVENT SOUND 
 `blackout.wav` plays only when a **MidRaidEvent** shuts down the grid. You can replace it with another WAV file:
 
 1. Rename your file to `blackout.wav`.
