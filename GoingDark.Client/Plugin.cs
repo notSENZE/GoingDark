@@ -15,7 +15,7 @@ namespace GoingDark.Client
     public sealed class Plugin : BaseUnityPlugin
     {
         public const string PluginGuid = "com.senze.goingdark";
-        public const string PluginName = "Going Dark";
+        public const string PluginName = "Senze - Going Dark";
         public const string PluginVersion = "0.4.0";
 
         internal static ManualLogSource Log { get; private set; }
