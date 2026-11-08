@@ -18,7 +18,7 @@ namespace GoingDark.Client
     {
         public const string PluginGuid = "com.senze.goingdark";
         public const string PluginName = "Senze - Going Dark";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
 
         internal static ManualLogSource Log { get; private set; }
 

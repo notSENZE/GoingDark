@@ -87,7 +87,9 @@ namespace GoingDark.Client
         private int _lightPreparationStage;
         private int _lightBlackoutFrames;
         private double _lightBlackoutWorkMilliseconds;
+        private float _midRaidDelaySeconds;
         private float _midRaidTriggerSeconds;
+        private bool _midRaidTimerStarted;
         private float _raidReadyRealtime;
         private BlackoutMode _raidMode;
         private Switch _interchangePowerSwitch;
@@ -127,7 +129,7 @@ namespace GoingDark.Client
                 BeginRaid(world);
             }
 
-            UpdateMidRaidEvent();
+            UpdateMidRaidEvent(world);
             ProcessEmissionPreparationBatch();
             ProcessLightPreparationStep();
 
@@ -253,7 +255,9 @@ namespace GoingDark.Client
             _lightPreparationStage = 0;
             _lightBlackoutFrames = 0;
             _lightBlackoutWorkMilliseconds = 0d;
+            _midRaidDelaySeconds = 0f;
             _midRaidTriggerSeconds = 0f;
+            _midRaidTimerStarted = false;
             _raidReadyRealtime = 0f;
             _raidMode = BlackoutMode.Permanent;
             _interchangePowerSwitch = null;
@@ -299,10 +303,13 @@ namespace GoingDark.Client
                 && !CanActivateBlackout(world))
             {
                 _useBatchedBlackout = true;
-                var currentTime = world.GameDateTime?.Calculate();
-                _log.LogInfo(
-                    $"Blackout on {_locationId} is waiting for night: "
-                    + $"current={currentTime:HH:mm}, active window=20:00-06:00.");
+                if (_raidMode == BlackoutMode.Permanent)
+                {
+                    var currentTime = world.GameDateTime?.Calculate();
+                    _log.LogInfo(
+                        $"Permanent blackout on {_locationId} is waiting for night: "
+                        + $"current={currentTime:HH:mm}, active window=20:00-06:00.");
+                }
             }
 
             if (_raidBlackoutSelected
@@ -378,17 +385,43 @@ namespace GoingDark.Client
                 triggerMinute += (float)random.NextDouble() * (latestMinute - earliestMinute);
             }
 
-            _midRaidTriggerSeconds = triggerMinute * 60f;
-            _blackoutReady = GetRaidElapsedSeconds() >= _midRaidTriggerSeconds;
+            _midRaidDelaySeconds = triggerMinute * 60f;
+            if (CanActivateBlackout(world))
+            {
+                _midRaidTimerStarted = true;
+                _midRaidTriggerSeconds = GetRaidElapsedSeconds() + _midRaidDelaySeconds;
+            }
 
             _log.LogInfo(
                 $"Mid-raid blackout event selected on {_locationId}: "
-                + $"trigger={triggerMinute:F1} minutes, roll={roll:F1}, chance={chance}%.");
+                + $"delay={triggerMinute:F1} real minutes, roll={roll:F1}, chance={chance}%, "
+                + $"countdown={(_midRaidTimerStarted ? "started" : "waiting for night")}.");
         }
 
-        private void UpdateMidRaidEvent()
+        private void UpdateMidRaidEvent(GameWorld world)
         {
             if (!_raidBlackoutSelected || !_midRaidEvent || _blackoutReady)
+            {
+                return;
+            }
+
+            if (!_midRaidTimerStarted)
+            {
+                if (!CanActivateBlackout(world))
+                {
+                    return;
+                }
+
+                _midRaidTimerStarted = true;
+                _midRaidTriggerSeconds = GetRaidElapsedSeconds() + _midRaidDelaySeconds;
+                var currentTime = world.GameDateTime?.Calculate();
+                _log.LogInfo(
+                    $"Mid-raid blackout countdown started on {_locationId}: "
+                    + $"current={currentTime:HH:mm}, "
+                    + $"delay={_midRaidDelaySeconds / 60f:F1} real minutes.");
+            }
+
+            if (!CanActivateBlackout(world))
             {
                 return;
             }
